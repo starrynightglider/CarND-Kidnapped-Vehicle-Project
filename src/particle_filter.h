@@ -12,7 +12,9 @@
 #include "helper_functions.h"
 
 struct Particle {
-
+Particle():id(0), x(0.0), y(0.0), theta(0.0), weight(0.0){}
+  Particle(int id, double x, double y, double theta, double weight):
+	  id(id), x(x), y(y), theta(theta), weight(weight){}
 	int id;
 	double x;
 	double y;
@@ -26,27 +28,13 @@ struct Particle {
 
 
 class ParticleFilter {
-	
-	// Number of particles to draw
-	int num_particles; 
-	
-	
-	
-	// Flag, if filter is initialized
-	bool is_initialized;
-	
-	// Vector of weights of all particles
-	std::vector<double> weights;
-	
+
 public:
-	
 	// Set of current particles
 	std::vector<Particle> particles;
-
 	// Constructor
 	// @param num_particles Number of particles
-	ParticleFilter() : num_particles(0), is_initialized(false) {}
-
+	ParticleFilter() : num_particles(100), is_initialized(false) {}
 	// Destructor
 	~ParticleFilter() {}
 
@@ -71,7 +59,7 @@ public:
 	 * @param yaw_rate Yaw rate of car from t to t+1 [rad/s]
 	 */
 	void prediction(double delta_t, double std_pos[], double velocity, double yaw_rate);
-	
+
 	/**
 	 * dataAssociation Finds which observations correspond to which landmarks (likely by using
 	 *   a nearest-neighbors data association).
@@ -79,10 +67,10 @@ public:
 	 * @param observations Vector of landmark observations
 	 */
 	void dataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations);
-	
+
 	/**
-	 * updateWeights Updates the weights for each particle based on the likelihood of the 
-	 *   observed measurements. 
+	 * updateWeights Updates the weights for each particle based on the likelihood of the
+	 *   observed measurements.
 	 * @param sensor_range Range [m] of sensor
 	 * @param std_landmark[] Array of dimension 2 [Landmark measurement uncertainty [x [m], y [m]]]
 	 * @param observations Vector of landmark observations
@@ -90,7 +78,7 @@ public:
 	 */
 	void updateWeights(double sensor_range, double std_landmark[], std::vector<LandmarkObs> observations,
 			Map map_landmarks);
-	
+
 	/**
 	 * resample Resamples from the updated set of particles to form
 	 *   the new set of particles.
@@ -102,7 +90,7 @@ public:
 	 * This can be a very useful debugging tool to make sure transformations are correct and assocations correctly connected
 	 */
 	Particle SetAssociations(Particle particle, std::vector<int> associations, std::vector<double> sense_x, std::vector<double> sense_y);
-	
+
 	std::string getAssociations(Particle best);
 	std::string getSenseX(Particle best);
 	std::string getSenseY(Particle best);
@@ -113,8 +101,16 @@ public:
 	const bool initialized() const {
 		return is_initialized;
 	}
+
+private:
+	// Number of particles to draw
+	int num_particles;
+	// Flag, if filter is initialized
+	bool is_initialized;
+	// Vector of weights of all particles
+	std::vector<double> weights;
+	void localToGlobal(const Particle &p, std::vector<LandmarkObs> &locs);
+  double gaussian2D(const LandmarkObs & obs, const LandmarkObs & landmark);
 };
-
-
 
 #endif /* PARTICLE_FILTER_H_ */

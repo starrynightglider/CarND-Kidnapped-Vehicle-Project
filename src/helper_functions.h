@@ -18,7 +18,7 @@
  * Struct representing one position/control measurement.
  */
 struct control_s {
-	
+
 	double velocity;	// Velocity [m/s]
 	double yawrate;		// Yaw rate [rad/s]
 };
@@ -27,7 +27,7 @@ struct control_s {
  * Struct representing one ground truth position.
  */
 struct ground_truth {
-	
+
 	double x;		// Global vehicle x position [m]
 	double y;		// Global vehicle y position
 	double theta;	// Global vehicle yaw [rad]
@@ -37,7 +37,8 @@ struct ground_truth {
  * Struct representing one landmark observation measurement.
  */
 struct LandmarkObs {
-	
+  LandmarkObs(): id(0), x(0), y(0){}
+	LandmarkObs(int id, double x, double y): id(id), x(x), y(y){}
 	int id;				// Id of matching landmark in the map.
 	double x;			// Local (vehicle coordinates) x position of landmark observation [m]
 	double y;			// Local (vehicle coordinates) y position of landmark observation [m]
@@ -51,6 +52,15 @@ struct LandmarkObs {
  */
 inline double dist(double x1, double y1, double x2, double y2) {
 	return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+}
+
+inline double distSquare(double x1, double y1, double x2, double y2) {
+	return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+}
+
+inline double distSquare(const LandmarkObs &obs1, const LandmarkObs &obs2){
+	return (obs2.x - obs1.x) * (obs2.x - obs1.x) +
+	            (obs2.y - obs1.y) * (obs2.y - obs1.y);
 }
 
 inline double * getError(double gt_x, double gt_y, double gt_theta, double pf_x, double pf_y, double pf_theta) {
@@ -77,7 +87,7 @@ inline bool read_map_data(std::string filename, Map& map) {
 	if (!in_file_map) {
 		return false;
 	}
-	
+
 	// Declare single line of map file:
 	std::string line_map;
 
@@ -141,7 +151,7 @@ inline bool read_control_data(std::string filename, std::vector<control_s>& posi
 		iss_pos >> velocity;
 		iss_pos >> yawrate;
 
-		
+
 		// Set values
 		meas.velocity = velocity;
 		meas.yawrate = yawrate;
@@ -177,7 +187,7 @@ inline bool read_gt_data(std::string filename, std::vector<ground_truth>& gt) {
 		double x, y, azimuth;
 
 		// Declare single ground truth:
-		ground_truth single_gt; 
+		ground_truth single_gt;
 
 		//read data from line to values:
 		iss_pos >> x;
